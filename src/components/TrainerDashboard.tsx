@@ -6,6 +6,7 @@ import SummaryCards from './SummaryCards';
 import TrainingLoadChart from './TrainingLoadChart';
 import AlertsList from './AlertsList';
 import AlertDetailDrawer from './AlertDetailDrawer';
+import AddAlertModal from './AddAlertModal';
 import PillarStatusGrid from './PillarStatusGrid';
 import BiomechanicsChart from './BiomechanicsChart';
 import BehaviourPanel from './BehaviourPanel';
@@ -18,19 +19,35 @@ export default function TrainerDashboard() {
   const [activePillarFilter, setActivePillarFilter] = useState<string | null>(null);
   const [activeAlert, setActiveAlert] = useState<Alert | null>(null);
   const [updatesSearchText, setUpdatesSearchText] = useState('');
+  const [isAddAlertModalOpen, setIsAddAlertModalOpen] = useState(false);
+  const [customAlerts, setCustomAlerts] = useState<Record<string, Alert[]>>({});
 
   // Get filtered metrics based on horse and range
   const allMetrics = dailyMetricsByHorseId[selectedHorseId] || [];
   const filteredMetrics = filterByRange(allMetrics, range);
 
-  // Get filtered alerts
-  const allAlerts = alertsByHorseId[selectedHorseId] || [];
+  // Get filtered alerts (combine default + custom alerts)
+  const defaultAlerts = alertsByHorseId[selectedHorseId] || [];
+  const customAlertsForHorse = customAlerts[selectedHorseId] || [];
+  const allAlerts = [...defaultAlerts, ...customAlertsForHorse];
   const filteredAlerts = allAlerts.filter(alert => {
     // Check if alert is relevant to current date range
     const alertDates = alert.history.map(h => h.date);
     const rangeDates = filteredMetrics.map(m => m.date);
     return alertDates.some(date => rangeDates.includes(date));
   });
+
+  const handleAddAlert = (alertData: Omit<Alert, 'id'>) => {
+    const newAlert: Alert = {
+      ...alertData,
+      id: `custom-alert-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    };
+
+    setCustomAlerts(prev => ({
+      ...prev,
+      [selectedHorseId]: [...(prev[selectedHorseId] || []), newAlert],
+    }));
+  };
 
   // Filter updates by pillar category if active
   const filteredUpdates = updatesFeed.filter(update => {
@@ -68,7 +85,11 @@ export default function TrainerDashboard() {
           {/* Two Column Layout for Desktop */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Alerts */}
-            <AlertsList alerts={filteredAlerts} onAlertClick={setActiveAlert} />
+            <AlertsList 
+              alerts={filteredAlerts} 
+              onAlertClick={setActiveAlert}
+              onAddAlert={() => setIsAddAlertModalOpen(true)}
+            />
 
             {/* Behaviour Panel */}
             <BehaviourPanel metrics={filteredMetrics} />
@@ -99,6 +120,13 @@ export default function TrainerDashboard() {
       {activeAlert && (
         <AlertDetailDrawer alert={activeAlert} onClose={() => setActiveAlert(null)} />
       )}
+
+      {/* Add Alert Modal */}
+      <AddAlertModal
+        isOpen={isAddAlertModalOpen}
+        onClose={() => setIsAddAlertModalOpen(false)}
+        onSave={handleAddAlert}
+      />
     </div>
   );
 }

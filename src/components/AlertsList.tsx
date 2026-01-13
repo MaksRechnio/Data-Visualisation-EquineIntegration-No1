@@ -1,12 +1,13 @@
-import { AlertCircle, AlertTriangle, Info } from 'lucide-react';
+import { AlertCircle, AlertTriangle, Info, Plus } from 'lucide-react';
 import { Alert } from '../data/trainerData';
 
 interface AlertsListProps {
   alerts: Alert[];
   onAlertClick: (alert: Alert) => void;
+  onAddAlert?: () => void;
 }
 
-export default function AlertsList({ alerts, onAlertClick }: AlertsListProps) {
+export default function AlertsList({ alerts, onAlertClick, onAddAlert }: AlertsListProps) {
   const getSeverityIcon = (severity: Alert['severity']) => {
     switch (severity) {
       case 'high':
@@ -40,37 +41,42 @@ export default function AlertsList({ alerts, onAlertClick }: AlertsListProps) {
     }
   };
 
-  if (alerts.length === 0) {
-    return (
-      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 border border-gray-200 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Alerts</h2>
-        <div className="text-sm text-gray-500">No active alerts</div>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-gradient-to-br from-white to-amber-50 rounded-xl p-6 border border-amber-100 shadow-[0_4px_6px_-1px_rgba(245,158,11,0.1),0_2px_4px_-1px_rgba(245,158,11,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(245,158,11,0.2),0_4px_6px_-2px_rgba(245,158,11,0.1)] transition-all">
-      <h2 className="text-xl font-bold text-gray-900 mb-5">Alerts</h2>
-      <div className="space-y-3">
-        {alerts.slice(0, 6).map(alert => (
-          <button
-            key={alert.id}
-            onClick={() => onAlertClick(alert)}
-            className={`w-full text-left p-4 rounded-xl border-2 ${getSeverityColor(alert.severity)} ${getSeverityShadow(alert.severity)} transition-all transform hover:-translate-y-0.5`}
-          >
-            <div className="flex items-start gap-3">
-              <div className="p-1.5 bg-white rounded-lg shadow-sm">
-                {getSeverityIcon(alert.severity)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-gray-900">{alert.title}</div>
-                <div className="text-xs text-gray-700 mt-1 line-clamp-1">{alert.description}</div>
-              </div>
-            </div>
-          </button>
-        ))}
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-xl font-bold text-gray-900">Alerts</h2>
+        <button
+          onClick={onAddAlert}
+          className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+          title="Add new alert"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
       </div>
+
+      {alerts.length === 0 ? (
+        <div className="text-sm text-gray-500 py-4">No active alerts</div>
+      ) : (
+        <div className="space-y-3">
+          {alerts.slice(0, 6).map(alert => (
+            <button
+              key={alert.id}
+              onClick={() => onAlertClick(alert)}
+              className={`w-full text-left p-4 rounded-xl border-2 ${getSeverityColor(alert.severity)} ${getSeverityShadow(alert.severity)} transition-all transform hover:-translate-y-0.5`}
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-white rounded-lg shadow-sm">
+                  {getSeverityIcon(alert.severity)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold text-gray-900">{alert.title}</div>
+                  <div className="text-xs text-gray-700 mt-1 line-clamp-1">{alert.description}</div>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
