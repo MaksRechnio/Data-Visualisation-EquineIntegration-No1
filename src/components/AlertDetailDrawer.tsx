@@ -104,18 +104,18 @@ export default function AlertDetailDrawer({ alert, onClose }: AlertDetailDrawerP
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
       />
       
-      {/* Mobile: Bottom sheet */}
-      <div className={`lg:hidden fixed inset-x-0 bottom-0 z-50 rounded-t-3xl ${config.border} border-t-4 w-full max-h-[85vh] ${config.shadow}`}>
-        {content}
-      </div>
-
-      {/* Desktop: Right-side drawer */}
-      <div className={`hidden lg:block fixed right-0 top-0 z-50 ${config.border} border-l-4 w-full max-w-md h-full ${config.shadow}`}>
-        {content}
+      {/* Centered Modal - Both Mobile and Desktop */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div 
+          className={`bg-white rounded-2xl ${config.border} border-4 w-full max-w-lg max-h-[85vh] ${config.shadow} overflow-hidden pointer-events-auto animate-modal-enter`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {content}
+        </div>
       </div>
     </>
   );

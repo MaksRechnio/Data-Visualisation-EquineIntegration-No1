@@ -10,3 +10,89 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Custom animations for horse selector */
+@keyframes slide-out-left {
+  0% {
+    transform: translateX(0) scale(1) rotateY(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(-50px) scale(0.9) rotateY(-15deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(-120px) scale(0.7) rotateY(-30deg);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-out-right {
+  0% {
+    transform: translateX(0) scale(1) rotateY(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateX(50px) scale(0.9) rotateY(15deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(120px) scale(0.7) rotateY(30deg);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(0) scale(0.8) rotateY(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: translateX(0) scale(1.05) rotateY(0deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateX(0) scale(1) rotateY(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-slide-out-left {
+  animation: slide-out-left 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-out-right {
+  animation: slide-out-right 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-in {
+  animation: slide-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out forwards;
+}
+
+.animate-modal-enter {
+  animation: modal-enter 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
