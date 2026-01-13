@@ -5,9 +5,10 @@ import CircularProgress from './CircularProgress';
 
 interface SummaryCardsProps {
   metrics: DailyMetrics[];
+  onMetricClick?: (metricType: 'readiness' | 'injuryRisk' | 'recovery' | 'nextEvent') => void;
 }
 
-export default function SummaryCards({ metrics }: SummaryCardsProps) {
+export default function SummaryCards({ metrics, onMetricClick }: SummaryCardsProps) {
   if (metrics.length === 0) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -44,7 +45,10 @@ export default function SummaryCards({ metrics }: SummaryCardsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {/* Overall Readiness */}
-      <div className="bg-gradient-to-br from-white to-blue-50 rounded-xl p-6 border border-blue-100 shadow-[0_4px_6px_-1px_rgba(59,130,246,0.1),0_2px_4px_-1px_rgba(59,130,246,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(59,130,246,0.2),0_4px_6px_-2px_rgba(59,130,246,0.1)] transition-all transform hover:-translate-y-1">
+      <button
+        onClick={() => onMetricClick?.('readiness')}
+        className="bg-gradient-to-br from-white to-blue-50 rounded-xl p-6 border border-blue-100 shadow-[0_4px_6px_-1px_rgba(59,130,246,0.1),0_2px_4px_-1px_rgba(59,130,246,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(59,130,246,0.2),0_4px_6px_-2px_rgba(59,130,246,0.1)] transition-all transform hover:-translate-y-1 cursor-pointer text-left w-full"
+      >
         <div className="text-sm font-medium text-gray-600 mb-3">Overall Readiness</div>
         <div className="flex items-center justify-between">
           <CircularProgress value={readiness.score} color={readinessColor} size={90} strokeWidth={10} />
@@ -53,10 +57,13 @@ export default function SummaryCards({ metrics }: SummaryCardsProps) {
           </span>
         </div>
         <div className="text-xs text-gray-600 mt-3 font-medium">{readiness.reason}</div>
-      </div>
+      </button>
 
       {/* Injury Risk */}
-      <div className="bg-gradient-to-br from-white to-red-50 rounded-xl p-6 border border-red-100 shadow-[0_4px_6px_-1px_rgba(239,68,68,0.1),0_2px_4px_-1px_rgba(239,68,68,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(239,68,68,0.2),0_4px_6px_-2px_rgba(239,68,68,0.1)] transition-all transform hover:-translate-y-1">
+      <button
+        onClick={() => onMetricClick?.('injuryRisk')}
+        className="bg-gradient-to-br from-white to-red-50 rounded-xl p-6 border border-red-100 shadow-[0_4px_6px_-1px_rgba(239,68,68,0.1),0_2px_4px_-1px_rgba(239,68,68,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(239,68,68,0.2),0_4px_6px_-2px_rgba(239,68,68,0.1)] transition-all transform hover:-translate-y-1 cursor-pointer text-left w-full"
+      >
         <div className="text-sm font-medium text-gray-600 mb-3">Injury Risk</div>
         <div className="flex items-center justify-between">
           <CircularProgress value={Math.round(latest.injuryRisk)} color={injuryColor} size={90} strokeWidth={10} />
@@ -67,10 +74,13 @@ export default function SummaryCards({ metrics }: SummaryCardsProps) {
         <div className="text-xs text-gray-600 mt-3 font-medium">
           {injuryStatus === 'good' ? 'Within safe range' : 'Monitor closely'}
         </div>
-      </div>
+      </button>
 
       {/* Recovery */}
-      <div className="bg-gradient-to-br from-white to-green-50 rounded-xl p-6 border border-green-100 shadow-[0_4px_6px_-1px_rgba(16,185,129,0.1),0_2px_4px_-1px_rgba(16,185,129,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(16,185,129,0.2),0_4px_6px_-2px_rgba(16,185,129,0.1)] transition-all transform hover:-translate-y-1">
+      <button
+        onClick={() => onMetricClick?.('recovery')}
+        className="bg-gradient-to-br from-white to-green-50 rounded-xl p-6 border border-green-100 shadow-[0_4px_6px_-1px_rgba(16,185,129,0.1),0_2px_4px_-1px_rgba(16,185,129,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(16,185,129,0.2),0_4px_6px_-2px_rgba(16,185,129,0.1)] transition-all transform hover:-translate-y-1 cursor-pointer text-left w-full"
+      >
         <div className="text-sm font-medium text-gray-600 mb-3">Recovery</div>
         <div className="flex items-center justify-between">
           <CircularProgress value={Math.round(latest.recoveryScore)} color={recoveryColor} size={90} strokeWidth={10} />
@@ -81,10 +91,13 @@ export default function SummaryCards({ metrics }: SummaryCardsProps) {
         <div className="text-xs text-gray-600 mt-3 font-medium">
           {recoveryStatus === 'good' ? 'Adequate recovery' : 'Needs attention'}
         </div>
-      </div>
+      </button>
 
       {/* Next Key Event */}
-      <div className="bg-gradient-to-br from-white to-purple-50 rounded-xl p-6 border border-purple-100 shadow-[0_4px_6px_-1px_rgba(168,85,247,0.1),0_2px_4px_-1px_rgba(168,85,247,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.2),0_4px_6px_-2px_rgba(168,85,247,0.1)] transition-all transform hover:-translate-y-1">
+      <button
+        onClick={() => onMetricClick?.('nextEvent')}
+        className="bg-gradient-to-br from-white to-purple-50 rounded-xl p-6 border border-purple-100 shadow-[0_4px_6px_-1px_rgba(168,85,247,0.1),0_2px_4px_-1px_rgba(168,85,247,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(168,85,247,0.2),0_4px_6px_-2px_rgba(168,85,247,0.1)] transition-all transform hover:-translate-y-1 cursor-pointer text-left w-full"
+      >
         <div className="text-sm font-medium text-gray-600 mb-3">Next Key Event</div>
         <div className="flex items-center gap-3 mt-2">
           <div className="p-2 bg-purple-100 rounded-lg">
@@ -95,7 +108,7 @@ export default function SummaryCards({ metrics }: SummaryCardsProps) {
             <div className="text-xs text-gray-600 font-medium">{nextEvent.date}</div>
           </div>
         </div>
-      </div>
+      </button>
     </div>
   );
 }

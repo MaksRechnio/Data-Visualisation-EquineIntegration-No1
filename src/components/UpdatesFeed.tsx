@@ -45,7 +45,7 @@ export default function UpdatesFeed({
 
   return (
     <div className="bg-gradient-to-br from-white to-teal-50 rounded-xl p-6 border border-teal-100 shadow-[0_4px_6px_-1px_rgba(20,184,166,0.1),0_2px_4px_-1px_rgba(20,184,166,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(20,184,166,0.2),0_4px_6px_-2px_rgba(20,184,166,0.1)] transition-all">
-      <h2 className="text-xl font-bold text-gray-900 mb-5">Last Updates</h2>
+      <h2 className="text-xl font-bold text-brand-secondary mb-5">Last Updates</h2>
 
       {/* Search and Filters */}
       <div className="mb-5 space-y-4">

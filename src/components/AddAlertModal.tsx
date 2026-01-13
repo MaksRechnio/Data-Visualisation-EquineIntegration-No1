@@ -66,7 +66,7 @@ export default function AddAlertModal({ isOpen, onClose, onSave }: AddAlertModal
         <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-2xl font-bold text-gray-900">Add New Alert</h2>
+            <h2 className="text-2xl font-bold text-brand-secondary">Add New Alert</h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -165,7 +165,7 @@ export default function AddAlertModal({ isOpen, onClose, onSave }: AddAlertModal
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 shadow-lg"
+                className="flex-1 px-4 py-3 bg-brand-accent text-brand-secondary rounded-xl font-semibold hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg"
               >
                 <Save className="w-5 h-5" />
                 Save

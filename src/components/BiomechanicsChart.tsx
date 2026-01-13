@@ -36,7 +36,7 @@ export default function BiomechanicsChart({ metrics }: BiomechanicsChartProps) {
   return (
     <div className="bg-gradient-to-br from-white to-indigo-50 rounded-xl p-6 border border-indigo-100 shadow-[0_4px_6px_-1px_rgba(99,102,241,0.1),0_2px_4px_-1px_rgba(99,102,241,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(99,102,241,0.2),0_4px_6px_-2px_rgba(99,102,241,0.1)] transition-all">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Biomechanics Trend</h2>
+        <h2 className="text-xl font-bold text-brand-secondary mb-2">Biomechanics Trend</h2>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-600">Symmetry trend:</span>
           <div className={`flex items-center gap-1 px-3 py-1 rounded-lg ${trend === 'improving' ? 'bg-green-100 text-green-700' : trend === 'declining' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}`}>

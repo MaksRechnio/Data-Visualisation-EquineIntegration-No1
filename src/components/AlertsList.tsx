@@ -44,10 +44,10 @@ export default function AlertsList({ alerts, onAlertClick, onAddAlert }: AlertsL
   return (
     <div className="bg-gradient-to-br from-white to-amber-50 rounded-xl p-6 border border-amber-100 shadow-[0_4px_6px_-1px_rgba(245,158,11,0.1),0_2px_4px_-1px_rgba(245,158,11,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(245,158,11,0.2),0_4px_6px_-2px_rgba(245,158,11,0.1)] transition-all">
       <div className="flex items-center justify-between mb-5">
-        <h2 className="text-xl font-bold text-gray-900">Alerts</h2>
+        <h2 className="text-xl font-bold text-brand-secondary">Alerts</h2>
         <button
           onClick={onAddAlert}
-          className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+          className="p-2 bg-brand-accent text-brand-secondary rounded-lg hover:opacity-90 transition-all shadow-md hover:shadow-lg"
           title="Add new alert"
         >
           <Plus className="w-5 h-5" />

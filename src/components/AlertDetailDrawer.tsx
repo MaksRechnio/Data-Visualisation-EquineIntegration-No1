@@ -42,7 +42,7 @@ export default function AlertDetailDrawer({ alert, onClose }: AlertDetailDrawerP
   const content = (
     <div className="h-full flex flex-col bg-gradient-to-br from-white to-gray-50">
       <div className={`flex items-center justify-between p-6 border-b-2 ${config.border} bg-gradient-to-r ${config.bg}`}>
-        <h2 className="text-2xl font-bold text-gray-900">{alert.title}</h2>
+        <h2 className="text-2xl font-bold text-brand-secondary">{alert.title}</h2>
         <button
           onClick={onClose}
           className="p-2 hover:bg-white/50 rounded-xl transition-all shadow-sm hover:shadow-md"

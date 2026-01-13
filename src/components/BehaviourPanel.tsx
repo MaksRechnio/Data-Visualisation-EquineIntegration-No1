@@ -57,7 +57,7 @@ export default function BehaviourPanel({ metrics }: BehaviourPanelProps) {
 
   return (
     <div className="bg-gradient-to-br from-white to-pink-50 rounded-xl p-6 border border-pink-100 shadow-[0_4px_6px_-1px_rgba(236,72,153,0.1),0_2px_4px_-1px_rgba(236,72,153,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(236,72,153,0.2),0_4px_6px_-2px_rgba(236,72,153,0.1)] transition-all">
-      <h2 className="text-xl font-bold text-gray-900 mb-5">Behaviour / Mental State</h2>
+      <h2 className="text-xl font-bold text-brand-secondary mb-5">Behaviour / Mental State</h2>
       <div className="space-y-5">
         {metricsList.map(metric => (
           <div key={metric.name} className={`group bg-gradient-to-br ${cardColors[metric.name as keyof typeof cardColors]} rounded-lg p-4 border shadow-sm hover:shadow-md transition-all`}>

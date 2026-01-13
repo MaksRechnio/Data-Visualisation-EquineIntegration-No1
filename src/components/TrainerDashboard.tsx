@@ -7,6 +7,7 @@ import TrainingLoadChart from './TrainingLoadChart';
 import AlertsList from './AlertsList';
 import AlertDetailDrawer from './AlertDetailDrawer';
 import AddAlertModal from './AddAlertModal';
+import MetricDetailModal, { MetricType } from './MetricDetailModal';
 import PillarStatusGrid from './PillarStatusGrid';
 import BiomechanicsChart from './BiomechanicsChart';
 import BehaviourPanel from './BehaviourPanel';
@@ -18,6 +19,7 @@ export default function TrainerDashboard() {
   const [range, setRange] = useState<'today' | '7d' | '30d'>('7d');
   const [activePillarFilter, setActivePillarFilter] = useState<string | null>(null);
   const [activeAlert, setActiveAlert] = useState<Alert | null>(null);
+  const [activeMetric, setActiveMetric] = useState<MetricType | null>(null);
   const [updatesSearchText, setUpdatesSearchText] = useState('');
   const [isAddAlertModalOpen, setIsAddAlertModalOpen] = useState(false);
   const [customAlerts, setCustomAlerts] = useState<Record<string, Alert[]>>({});
@@ -58,11 +60,11 @@ export default function TrainerDashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20">
+    <div className="min-h-screen bg-brand-bg">
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm border-b-2 border-gray-200 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Equine Integration</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-brand-secondary">Equine Integration</h1>
         </div>
         <HeaderControls
           horses={horses}
@@ -77,7 +79,7 @@ export default function TrainerDashboard() {
       <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
           {/* Summary Cards */}
-          <SummaryCards metrics={filteredMetrics} />
+          <SummaryCards metrics={filteredMetrics} onMetricClick={setActiveMetric} />
 
           {/* Training Load Chart */}
           <TrainingLoadChart metrics={filteredMetrics} />
@@ -126,6 +128,13 @@ export default function TrainerDashboard() {
         isOpen={isAddAlertModalOpen}
         onClose={() => setIsAddAlertModalOpen(false)}
         onSave={handleAddAlert}
+      />
+
+      {/* Metric Detail Modal */}
+      <MetricDetailModal
+        metricType={activeMetric}
+        metrics={filteredMetrics}
+        onClose={() => setActiveMetric(null)}
       />
     </div>
   );

@@ -92,7 +92,7 @@ export default function PillarStatusGrid({
 
   return (
     <div className="bg-gradient-to-br from-white to-slate-50 rounded-xl p-6 border border-slate-200 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-2px_rgba(0,0,0,0.05)] transition-all">
-      <h2 className="text-xl font-bold text-gray-900 mb-5">Five Pillars Overview</h2>
+      <h2 className="text-xl font-bold text-brand-secondary mb-5">Five Pillars Overview</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {pillars.map(pillar => {
           const score = pillar.getScore(latest);
@@ -114,10 +114,10 @@ export default function PillarStatusGrid({
                 <div className="p-1.5 bg-white rounded-lg shadow-sm">
                   {pillar.icon}
                 </div>
-                <div className="text-sm font-bold text-gray-900">{pillar.name}</div>
+                <div className="text-sm font-bold text-brand-secondary">{pillar.name}</div>
               </div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-lg font-bold text-gray-900">{Math.round(score)}%</span>
+                <span className="text-lg font-bold text-brand-secondary">{Math.round(score)}%</span>
                 <span className={`px-2 py-1 rounded-lg text-xs font-semibold ${statusColors[status]}`}>
                   {status === 'good' ? 'Good' : status === 'warning' ? 'Fair' : 'Poor'}
                 </span>

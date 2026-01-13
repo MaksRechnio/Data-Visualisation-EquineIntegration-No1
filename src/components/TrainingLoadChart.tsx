@@ -46,7 +46,7 @@ export default function TrainingLoadChart({ metrics }: TrainingLoadChartProps) {
   return (
     <div className="bg-gradient-to-br from-white to-orange-50 rounded-xl p-6 border border-orange-100 shadow-[0_4px_6px_-1px_rgba(249,115,22,0.1),0_2px_4px_-1px_rgba(249,115,22,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(249,115,22,0.2),0_4px_6px_-2px_rgba(249,115,22,0.1)] transition-all">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Training Load</h2>
+        <h2 className="text-xl font-bold text-brand-secondary mb-2">Training Load</h2>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium text-gray-600">Load vs baseline:</span>
           <div className={`flex items-center gap-1 px-3 py-1 rounded-lg ${isIncreasing ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>

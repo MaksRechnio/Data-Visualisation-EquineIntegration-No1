@@ -8,31 +8,31 @@ interface HorseSelectorProps {
   onHorseChange: (horseId: string) => void;
 }
 
-// Color scheme for each horse
+// Color scheme for each horse - using brand colors with variations
 const horseColors: Record<string, { center: string; centerText: string; centerBorder: string; preview: string; previewText: string; previewBorder: string }> = {
   'horse-1': {
-    center: 'bg-yellow-100',
-    centerText: 'text-yellow-800',
-    centerBorder: 'border-yellow-200',
-    preview: 'bg-yellow-50',
-    previewText: 'text-yellow-700',
-    previewBorder: 'border-yellow-200',
+    center: 'bg-brand-accent/20',
+    centerText: 'text-brand-secondary',
+    centerBorder: 'border-brand-accent/40',
+    preview: 'bg-brand-accent/10',
+    previewText: 'text-brand-secondary/80',
+    previewBorder: 'border-brand-accent/30',
   },
   'horse-2': {
-    center: 'bg-blue-100',
-    centerText: 'text-blue-800',
-    centerBorder: 'border-blue-200',
-    preview: 'bg-blue-50',
-    previewText: 'text-blue-700',
-    previewBorder: 'border-blue-200',
+    center: 'bg-brand-accent/30',
+    centerText: 'text-brand-secondary',
+    centerBorder: 'border-brand-accent/50',
+    preview: 'bg-brand-accent/15',
+    previewText: 'text-brand-secondary/80',
+    previewBorder: 'border-brand-accent/40',
   },
   'horse-3': {
-    center: 'bg-purple-100',
-    centerText: 'text-purple-800',
-    centerBorder: 'border-purple-200',
-    preview: 'bg-purple-50',
-    previewText: 'text-purple-700',
-    previewBorder: 'border-purple-200',
+    center: 'bg-brand-accent/25',
+    centerText: 'text-brand-secondary',
+    centerBorder: 'border-brand-accent/45',
+    preview: 'bg-brand-accent/12',
+    previewText: 'text-brand-secondary/80',
+    previewBorder: 'border-brand-accent/35',
   },
 };
 
@@ -108,7 +108,7 @@ export default function HorseSelector({
         className={`p-1 hover:opacity-70 transition-all ${isAnimating ? 'opacity-50 cursor-not-allowed' : ''}`}
         aria-label="Previous horse"
       >
-        <ChevronLeft className={`w-6 h-6 text-gray-900 transition-transform ${direction === 'left' && isAnimating ? 'scale-125' : ''}`} />
+        <ChevronLeft className={`w-6 h-6 text-brand-secondary transition-transform ${direction === 'left' && isAnimating ? 'scale-125' : ''}`} />
       </button>
 
       {/* Previous Horse Preview (Left) - Circular */}
@@ -188,7 +188,7 @@ export default function HorseSelector({
         className={`p-1 hover:opacity-70 transition-all ${isAnimating ? 'opacity-50 cursor-not-allowed' : ''}`}
         aria-label="Next horse"
       >
-        <ChevronRight className={`w-6 h-6 text-gray-900 transition-transform ${direction === 'right' && isAnimating ? 'scale-125' : ''}`} />
+        <ChevronRight className={`w-6 h-6 text-brand-secondary transition-transform ${direction === 'right' && isAnimating ? 'scale-125' : ''}`} />
       </button>
     </div>
   );
