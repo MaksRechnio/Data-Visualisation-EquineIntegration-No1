@@ -16,62 +16,81 @@ export default function AlertDetailDrawer({ alert, onClose }: AlertDetailDrawerP
     value: h.value,
   }));
 
-  const severityColors = {
-    high: 'border-red-300',
-    med: 'border-yellow-300',
-    low: 'border-blue-300',
+  const severityConfig = {
+    high: {
+      border: 'border-red-400',
+      bg: 'from-red-50 to-rose-50',
+      shadow: 'shadow-[0_20px_25px_-5px_rgba(239,68,68,0.3)]',
+      chartColor: '#EF4444',
+    },
+    med: {
+      border: 'border-yellow-400',
+      bg: 'from-yellow-50 to-amber-50',
+      shadow: 'shadow-[0_20px_25px_-5px_rgba(234,179,8,0.3)]',
+      chartColor: '#F59E0B',
+    },
+    low: {
+      border: 'border-blue-400',
+      bg: 'from-blue-50 to-cyan-50',
+      shadow: 'shadow-[0_20px_25px_-5px_rgba(59,130,246,0.3)]',
+      chartColor: '#3B82F6',
+    },
   };
 
+  const config = severityConfig[alert.severity];
+
   const content = (
-    <div className="h-full flex flex-col">
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <h2 className="text-xl font-semibold text-gray-900">{alert.title}</h2>
+    <div className="h-full flex flex-col bg-gradient-to-br from-white to-gray-50">
+      <div className={`flex items-center justify-between p-6 border-b-2 ${config.border} bg-gradient-to-r ${config.bg}`}>
+        <h2 className="text-2xl font-bold text-gray-900">{alert.title}</h2>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-white/50 rounded-xl transition-all shadow-sm hover:shadow-md"
         >
-          <X className="w-5 h-5 text-gray-500" />
+          <X className="w-5 h-5 text-gray-600" />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
-        <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Description</h3>
-          <p className="text-sm text-gray-600">{alert.description}</p>
+      <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-2">Description</h3>
+          <p className="text-sm text-gray-700 leading-relaxed">{alert.description}</p>
         </div>
 
-        <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-2">Recommended Action</h3>
-          <p className="text-sm text-gray-600">{alert.recommendedAction}</p>
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-2">Recommended Action</h3>
+          <p className="text-sm text-gray-700 leading-relaxed">{alert.recommendedAction}</p>
         </div>
 
-        <div>
-          <h3 className="text-sm font-medium text-gray-700 mb-3">Metric History</h3>
-          <div className="h-48">
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+          <h3 className="text-sm font-bold text-gray-800 mb-4">Metric History</h3>
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <XAxis
                   dataKey="date"
-                  tick={{ fontSize: 11, fill: '#6B7280' }}
+                  tick={{ fontSize: 11, fill: '#6B7280', fontWeight: 500 }}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  tick={{ fontSize: 11, fill: '#6B7280' }}
+                  tick={{ fontSize: 11, fill: '#6B7280', fontWeight: 500 }}
                 />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: 'white',
-                    border: '1px solid #E5E7EB',
+                    border: `2px solid ${config.chartColor}`,
                     borderRadius: '8px',
                     fontSize: '11px',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="value"
-                  stroke="#4B5563"
-                  strokeWidth={2}
-                  dot={{ r: 3 }}
+                  stroke={config.chartColor}
+                  strokeWidth={3}
+                  dot={{ r: 4, fill: config.chartColor }}
+                  activeDot={{ r: 6 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -85,17 +104,17 @@ export default function AlertDetailDrawer({ alert, onClose }: AlertDetailDrawerP
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 lg:bg-black/30 z-40"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
         onClick={onClose}
       />
       
       {/* Mobile: Bottom sheet */}
-      <div className={`lg:hidden fixed inset-x-0 bottom-0 z-50 bg-white rounded-t-2xl ${severityColors[alert.severity]} border-t-4 w-full max-h-[80vh] shadow-xl`}>
+      <div className={`lg:hidden fixed inset-x-0 bottom-0 z-50 rounded-t-3xl ${config.border} border-t-4 w-full max-h-[85vh] ${config.shadow}`}>
         {content}
       </div>
 
       {/* Desktop: Right-side drawer */}
-      <div className={`hidden lg:block fixed right-0 top-0 z-50 bg-white ${severityColors[alert.severity]} border-l-4 w-full max-w-md h-full shadow-xl`}>
+      <div className={`hidden lg:block fixed right-0 top-0 z-50 ${config.border} border-l-4 w-full max-w-md h-full ${config.shadow}`}>
         {content}
       </div>
     </>

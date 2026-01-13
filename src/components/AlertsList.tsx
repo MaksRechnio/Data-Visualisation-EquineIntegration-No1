@@ -29,30 +29,43 @@ export default function AlertsList({ alerts, onAlertClick }: AlertsListProps) {
     }
   };
 
+  const getSeverityShadow = (severity: Alert['severity']) => {
+    switch (severity) {
+      case 'high':
+        return 'shadow-[0_4px_6px_-1px_rgba(239,68,68,0.2),0_2px_4px_-1px_rgba(239,68,68,0.1)] hover:shadow-[0_8px_12px_-2px_rgba(239,68,68,0.3),0_4px_6px_-2px_rgba(239,68,68,0.15)]';
+      case 'med':
+        return 'shadow-[0_4px_6px_-1px_rgba(234,179,8,0.2),0_2px_4px_-1px_rgba(234,179,8,0.1)] hover:shadow-[0_8px_12px_-2px_rgba(234,179,8,0.3),0_4px_6px_-2px_rgba(234,179,8,0.15)]';
+      case 'low':
+        return 'shadow-[0_4px_6px_-1px_rgba(59,130,246,0.2),0_2px_4px_-1px_rgba(59,130,246,0.1)] hover:shadow-[0_8px_12px_-2px_rgba(59,130,246,0.3),0_4px_6px_-2px_rgba(59,130,246,0.15)]';
+    }
+  };
+
   if (alerts.length === 0) {
     return (
-      <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Alerts</h2>
+      <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 border border-gray-200 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-1px_rgba(0,0,0,0.06)]">
+        <h2 className="text-xl font-bold text-gray-900 mb-4">Alerts</h2>
         <div className="text-sm text-gray-500">No active alerts</div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Alerts</h2>
-      <div className="space-y-2">
+    <div className="bg-gradient-to-br from-white to-amber-50 rounded-xl p-6 border border-amber-100 shadow-[0_4px_6px_-1px_rgba(245,158,11,0.1),0_2px_4px_-1px_rgba(245,158,11,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(245,158,11,0.2),0_4px_6px_-2px_rgba(245,158,11,0.1)] transition-all">
+      <h2 className="text-xl font-bold text-gray-900 mb-5">Alerts</h2>
+      <div className="space-y-3">
         {alerts.slice(0, 6).map(alert => (
           <button
             key={alert.id}
             onClick={() => onAlertClick(alert)}
-            className={`w-full text-left p-3 rounded-lg border ${getSeverityColor(alert.severity)} hover:opacity-80 transition-opacity`}
+            className={`w-full text-left p-4 rounded-xl border-2 ${getSeverityColor(alert.severity)} ${getSeverityShadow(alert.severity)} transition-all transform hover:-translate-y-0.5`}
           >
             <div className="flex items-start gap-3">
-              {getSeverityIcon(alert.severity)}
+              <div className="p-1.5 bg-white rounded-lg shadow-sm">
+                {getSeverityIcon(alert.severity)}
+              </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900">{alert.title}</div>
-                <div className="text-xs text-gray-600 mt-1 line-clamp-1">{alert.description}</div>
+                <div className="text-sm font-bold text-gray-900">{alert.title}</div>
+                <div className="text-xs text-gray-700 mt-1 line-clamp-1">{alert.description}</div>
               </div>
             </div>
           </button>
