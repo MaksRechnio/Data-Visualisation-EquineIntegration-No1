@@ -1,0 +1,1035 @@
+================================================================================
+EQUINE INTEGRATION - TRAINER OVERVIEW DASHBOARD
+SYSTEM DOCUMENTATION & SCHEMATICS
+================================================================================
+
+Document Version: 1.0
+Last Updated: Current State
+Purpose: Complete system documentation for ChatGPT documentation generation
+
+================================================================================
+1. PROJECT OVERVIEW
+================================================================================
+
+Project Name: Equine Integration - Trainer Overview Dashboard
+Type: Single-Page Application (SPA) - Proof of Concept (POC)
+Architecture: Frontend-only application with local dummy data
+Deployment: Local development server (Vite)
+Status: Fully functional POC with complete feature set
+
+Purpose:
+- Provide equine trainers with comprehensive health and performance monitoring
+- Real-time visualization of horse metrics, alerts, and training data
+- Mobile-first responsive design for field use
+- Interactive data exploration with drill-down capabilities
+
+Key Characteristics:
+- Zero backend dependencies (all data generated locally)
+- No authentication required (POC stage)
+- Fully self-contained React application
+- Production-ready build process included
+
+================================================================================
+2. TECHNOLOGY STACK
+================================================================================
+
+Core Framework:
+- React 18.2.0 (Functional components with Hooks)
+- TypeScript 5.3.3 (Full type coverage)
+- Vite 5.0.8 (Build tool and dev server)
+
+UI & Styling:
+- TailwindCSS 3.3.6 (Utility-first CSS framework)
+- Lucide React 0.294.0 (Icon library)
+- PostCSS 8.4.32 (CSS processing)
+- Autoprefixer 10.4.16 (Vendor prefixing)
+
+Data Visualization:
+- Recharts 2.10.3 (Charting library)
+  - BarChart: Training load visualization
+  - LineChart: Trend analysis
+  - PieChart: Circular progress indicators
+  - ResponsiveContainer: Auto-responsive charts
+
+Development Tools:
+- @vitejs/plugin-react 4.2.1 (React plugin for Vite)
+- @types/react 18.2.43 (TypeScript definitions)
+- @types/react-dom 18.2.17 (TypeScript definitions)
+
+================================================================================
+3. SYSTEM ARCHITECTURE
+================================================================================
+
+Architecture Pattern: Component-Based Architecture with Centralized State
+
+Application Flow:
+┌─────────────────────────────────────────────────────────────────┐
+│                        index.html                                │
+│                    (Entry Point)                                 │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      main.tsx                                    │
+│              (React DOM Root Renderer)                           │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       App.tsx                                    │
+│                  (Root Component)                                │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                 TrainerDashboard.tsx                             │
+│           (Main Container - State Management)                   │
+│                                                                  │
+│  State:                                                          │
+│  - selectedHorseId: string                                      │
+│  - range: 'today' | '7d' | '30d'                                │
+│  - activePillarFilter: string | null                            │
+│  - activeAlert: Alert | null                                    │
+│  - activeMetric: MetricType | null                              │
+│  - updatesSearchText: string                                    │
+│  - isAddAlertModalOpen: boolean                                 │
+│  - customAlerts: Record<string, Alert[]>                        │
+└───────┬─────────────────────────────────────────────────────────┘
+        │
+        ├──────────────────────────────────────────────────────────┐
+        │                                                           │
+        ▼                    ▼                    ▼                ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ HeaderControls│  │SummaryCards │  │TrainingLoad  │  │ AlertsList   │
+│              │  │             │  │Chart         │  │              │
+│ - Horse      │  │ - Readiness │  │ - Bar Chart  │  │ - Alert List │
+│   Selector   │  │ - Injury    │  │ - Hover FX  │  │ - Add Button │
+│ - Date Range │  │   Risk      │  │ - Baseline   │  │ - Clickable  │
+│              │  │ - Recovery  │  │              │  │              │
+│              │  │ - Next Event│  │              │  │              │
+└──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘
+        │                    │                │                │
+        │                    │                │                │
+        ▼                    ▼                ▼                ▼
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│PillarStatus  │  │Biomechanics  │  │BehaviourPanel│  │UpdatesFeed  │
+│Grid          │  │Chart         │  │              │  │             │
+│              │  │              │  │ - Focus      │  │ - Timeline   │
+│ - 5 Pillars  │  │ - Line Chart │  │ - Stress    │  │ - Search    │
+│ - Clickable  │  │ - Trend      │  │ - Willing   │  │ - Filter    │
+│ - Filter     │  │              │  │             │  │             │
+└──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘
+
+Modal/Drawer Components (Conditionally Rendered):
+┌─────────────────────────────────────────────────────────────────┐
+│  AlertDetailDrawer (Centered Modal)                            │
+│  - Alert details                                                │
+│  - Historical chart                                             │
+│  - Recommended actions                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  AddAlertModal (Centered Modal)                                 │
+│  - Form inputs                                                  │
+│  - Severity selection                                           │
+│  - Save/Cancel buttons                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  MetricDetailModal (Centered Modal)                             │
+│  - Metric-specific details                                      │
+│  - Related metrics                                              │
+│  - Historical trend chart                                       │
+└─────────────────────────────────────────────────────────────────┘
+
+Data Flow:
+┌─────────────────────────────────────────────────────────────────┐
+│                    trainerData.ts                               │
+│              (Dummy Data Generator)                              │
+│                                                                  │
+│  Exports:                                                        │
+│  - horses: Horse[]                                               │
+│  - dailyMetricsByHorseId: Record<string, DailyMetrics[]>       │
+│  - alertsByHorseId: Record<string, Alert[]>                     │
+│  - updatesFeed: Update[]                                         │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    helpers.ts                                    │
+│              (Utility Functions)                                 │
+│                                                                  │
+│  Functions:                                                      │
+│  - getStatus(score, lowerIsBetter): Status                      │
+│  - computeReadiness(metrics): {score, reason}                   │
+│  - computeTrend(series): 'improving' | 'stable' | 'declining'   │
+│  - filterByRange(data, range): FilteredData[]                   │
+│  - formatDate(dateString): string                               │
+│  - formatDateTime(dateTimeString): string                       │
+└─────────────────────────────────────────────────────────────────┘
+
+================================================================================
+4. COMPONENT HIERARCHY & RELATIONSHIPS
+================================================================================
+
+Component Tree:
+
+TrainerDashboard (Root Container)
+│
+├── Header (Fixed Header Section)
+│   └── HeaderControls
+│       ├── Title: "Trainer Overview"
+│       ├── DateRangeToggle (Today / 7D / 30D)
+│       └── HorseSelector
+│           ├── Left Arrow Button
+│           ├── Previous Horse Preview (Circular)
+│           ├── Selected Horse (Pill-shaped, Center)
+│           ├── Next Horse Preview (Circular)
+│           └── Right Arrow Button
+│
+├── Main Content (Scrollable)
+│   │
+│   ├── SummaryCards (Grid of 4 cards)
+│   │   ├── Overall Readiness Card (Clickable)
+│   │   │   └── CircularProgress Component
+│   │   ├── Injury Risk Card (Clickable)
+│   │   │   └── CircularProgress Component
+│   │   ├── Recovery Card (Clickable)
+│   │   │   └── CircularProgress Component
+│   │   └── Next Key Event Card (Clickable)
+│   │
+│   ├── TrainingLoadChart
+│   │   └── Recharts BarChart
+│   │       ├── 7-color gradient bars
+│   │       ├── Baseline comparison line
+│   │       └── Hover effects (dim non-hovered bars)
+│   │
+│   ├── Two Column Layout (Desktop)
+│   │   ├── AlertsList
+│   │   │   ├── Plus Button (Opens AddAlertModal)
+│   │   │   └── Alert Items (Clickable, opens AlertDetailDrawer)
+│   │   │       └── Severity Indicators
+│   │   │
+│   │   └── BehaviourPanel
+│   │       ├── Focus Metric Card
+│   │       ├── Stress Metric Card
+│   │       └── Willingness Metric Card
+│   │
+│   ├── PillarStatusGrid
+│   │   ├── Health Pillar Card (Clickable, filters Updates)
+│   │   ├── Training Pillar Card (Clickable, filters Updates)
+│   │   ├── Nutrition Pillar Card (Clickable, filters Updates)
+│   │   ├── Biomechanics Pillar Card (Clickable, filters Updates)
+│   │   └── Environment Pillar Card (Clickable, filters Updates)
+│   │
+│   ├── BiomechanicsChart
+│   │   └── Recharts LineChart (Symmetry Trend)
+│   │
+│   └── UpdatesFeed
+│       ├── Search Input
+│       ├── Category Filter Buttons
+│       └── Update Items (Timeline)
+│           ├── Role Badge
+│           ├── Category Tag
+│           └── Update Text
+│
+└── Modals/Drawers (Conditional Rendering)
+    │
+    ├── AlertDetailDrawer (when activeAlert !== null)
+    │   ├── Backdrop (Semi-transparent overlay)
+    │   └── Centered Modal
+    │       ├── Header with Close Button
+    │       ├── Alert Description
+    │       ├── Recommended Action
+    │       └── Historical Chart (Recharts LineChart)
+    │
+    ├── AddAlertModal (when isAddAlertModalOpen === true)
+    │   ├── Backdrop (Semi-transparent overlay)
+    │   └── Centered Modal
+    │       ├── Header with Close Button
+    │       ├── Form Fields
+    │       │   ├── Severity Select
+    │       │   ├── Title Input
+    │       │   ├── Description Textarea
+    │       │   ├── Metric Key Input
+    │       │   └── Recommended Action Input
+    │       └── Action Buttons (Cancel / Save)
+    │
+    └── MetricDetailModal (when activeMetric !== null)
+        ├── Backdrop (Semi-transparent overlay)
+        └── Centered Modal
+            ├── Header with Close Button
+            ├── Current Value & Status Section
+            ├── Related Metrics Grid
+            └── Historical Trend Chart (Recharts LineChart)
+
+Component Communication Flow:
+
+User Action: Select Horse
+  → HorseSelector.onHorseChange(horseId)
+  → TrainerDashboard.setSelectedHorseId(horseId)
+  → Filters dailyMetricsByHorseId[horseId]
+  → Updates all child components with new metrics
+
+User Action: Change Date Range
+  → HeaderControls.onRangeChange(range)
+  → TrainerDashboard.setRange(range)
+  → filterByRange(allMetrics, range)
+  → Updates all child components with filtered metrics
+
+User Action: Click Metric Card
+  → SummaryCards.onMetricClick(metricType)
+  → TrainerDashboard.setActiveMetric(metricType)
+  → Renders MetricDetailModal with metric data
+
+User Action: Click Alert
+  → AlertsList.onAlertClick(alert)
+  → TrainerDashboard.setActiveAlert(alert)
+  → Renders AlertDetailDrawer with alert details
+
+User Action: Click Pillar Card
+  → PillarStatusGrid.onPillarClick(category)
+  → TrainerDashboard.setActivePillarFilter(category)
+  → Filters UpdatesFeed by category
+
+User Action: Add New Alert
+  → AlertsList.onAddAlert()
+  → TrainerDashboard.setIsAddAlertModalOpen(true)
+  → Renders AddAlertModal
+  → On Save: handleAddAlert(alertData)
+  → Adds to customAlerts[selectedHorseId]
+  → Updates AlertsList
+
+================================================================================
+5. DATA MODELS & INTERFACES
+================================================================================
+
+TypeScript Interfaces:
+
+interface Horse {
+  id: string;              // Unique identifier (e.g., 'horse-1')
+  name: string;            // Horse name (e.g., 'Thunder')
+  age: number;             // Age in years
+  discipline: string;      // Discipline (e.g., 'Dressage', 'Jumping')
+}
+
+interface DailyMetrics {
+  date: string;                    // YYYY-MM-DD format
+  trainingIntensity: number;      // 0-10 scale
+  recoveryScore: number;          // 0-100 percentage
+  injuryRisk: number;             // 0-100 percentage
+  restingHR: number;              // Resting heart rate (bpm)
+  symmetryPct: number;            // 0-100 percentage
+  behaviour: {
+    focus: number;                // 0-100 percentage
+    stress: number;               // 0-100 percentage
+    willingness: number;         // 0-100 percentage
+  };
+}
+
+interface Alert {
+  id: string;                     // Unique identifier
+  severity: 'low' | 'med' | 'high';
+  title: string;                  // Alert title
+  description: string;            // Detailed description
+  metricKey: string;              // Related metric key
+  history: Array<{                // Historical data points
+    date: string;                 // YYYY-MM-DD format
+    value: number;                // Metric value
+  }>;
+  recommendedAction: string;      // Recommended action text
+}
+
+interface Update {
+  id: string;                     // Unique identifier
+  dateTime: string;               // ISO 8601 string
+  role: 'Trainer' | 'Vet' | 'Nutritionist';
+  category: 'Health' | 'Training' | 'Nutrition' | 'Biomechanics' | 'Environment';
+  text: string;                   // Update text content
+}
+
+Data Storage Structure:
+
+dailyMetricsByHorseId: Record<string, DailyMetrics[]>
+  Example:
+  {
+    'horse-1': [DailyMetrics, DailyMetrics, ...],  // 30 days of data
+    'horse-2': [DailyMetrics, DailyMetrics, ...],
+    'horse-3': [DailyMetrics, DailyMetrics, ...]
+  }
+
+alertsByHorseId: Record<string, Alert[]>
+  Example:
+  {
+    'horse-1': [Alert, Alert, ...],
+    'horse-2': [Alert, Alert, ...],
+    'horse-3': [Alert, Alert, ...]
+  }
+
+updatesFeed: Update[]
+  Single array of all updates (not horse-specific)
+
+customAlerts: Record<string, Alert[]>
+  User-created alerts stored per horse
+  Merged with default alerts for display
+
+Data Generation:
+- All data generated in trainerData.ts
+- 3 horses pre-configured
+- 30 days of metrics per horse
+- Alerts generated based on metric thresholds
+- Updates feed with realistic timeline
+
+================================================================================
+6. STATE MANAGEMENT
+================================================================================
+
+State Management Pattern: React useState (No external state library)
+
+Centralized State (TrainerDashboard.tsx):
+
+1. selectedHorseId: string
+   - Current horse selection
+   - Default: horses[0].id
+   - Updated by: HorseSelector
+   - Affects: All metric displays, alerts, charts
+
+2. range: 'today' | '7d' | '30d'
+   - Date range filter
+   - Default: '7d'
+   - Updated by: HeaderControls DateRangeToggle
+   - Affects: All metric displays, charts, alerts
+
+3. activePillarFilter: string | null
+   - Active pillar category filter
+   - Default: null (show all)
+   - Updated by: PillarStatusGrid, UpdatesFeed
+   - Affects: UpdatesFeed filtering
+
+4. activeAlert: Alert | null
+   - Currently viewed alert
+   - Default: null
+   - Updated by: AlertsList (on click)
+   - Affects: AlertDetailDrawer visibility
+
+5. activeMetric: MetricType | null
+   - Currently viewed metric detail
+   - Default: null
+   - Updated by: SummaryCards (on click)
+   - Affects: MetricDetailModal visibility
+
+6. updatesSearchText: string
+   - Search query for updates feed
+   - Default: ''
+   - Updated by: UpdatesFeed search input
+   - Affects: UpdatesFeed filtering
+
+7. isAddAlertModalOpen: boolean
+   - Add alert modal visibility
+   - Default: false
+   - Updated by: AlertsList (plus button), AddAlertModal (close)
+   - Affects: AddAlertModal visibility
+
+8. customAlerts: Record<string, Alert[]>
+   - User-created alerts per horse
+   - Default: {}
+   - Updated by: handleAddAlert function
+   - Affects: AlertsList display
+
+Computed State (Derived from State):
+
+filteredMetrics: DailyMetrics[]
+  = filterByRange(dailyMetricsByHorseId[selectedHorseId], range)
+
+allAlerts: Alert[]
+  = [...alertsByHorseId[selectedHorseId], ...customAlerts[selectedHorseId]]
+
+filteredAlerts: Alert[]
+  = allAlerts filtered by date range relevance
+
+filteredUpdates: Update[]
+  = updatesFeed filtered by activePillarFilter and updatesSearchText
+
+State Flow Diagram:
+
+┌─────────────────────────────────────────────────────────────┐
+│              User Interaction                               │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│         Component Event Handler                            │
+│  (onHorseChange, onRangeChange, onAlertClick, etc.)        │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│         State Setter Function                               │
+│  (setSelectedHorseId, setRange, setActiveAlert, etc.)      │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│         State Update                                        │
+│  (React re-renders TrainerDashboard)                       │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│         Computed Values Recalculate                        │
+│  (filteredMetrics, filteredAlerts, filteredUpdates)       │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│         Child Components Re-render                          │
+│  (With new props based on updated state)                   │
+└─────────────────────────────────────────────────────────────┘
+
+================================================================================
+7. STYLING SYSTEM & DESIGN TOKENS
+================================================================================
+
+CSS Framework: TailwindCSS 3.3.6
+
+Custom Color Palette (tailwind.config.js):
+- brand-bg: '#F8F4F3' (Warm beige background)
+- brand-secondary: '#001B2F' (Deep navy blue)
+- brand-accent: '#35D0C6' (Vibrant teal/cyan)
+
+Status Colors:
+- Good: Green (#10B981)
+- Warning: Yellow/Amber (#F59E0B)
+- Critical: Red (#EF4444)
+
+Design System:
+
+Typography:
+- Font Family: System fonts (San Francisco, Segoe UI, Roboto)
+- Font Smoothing: Antialiased
+- Headings: Bold, brand-secondary color
+- Body: Regular weight, gray scale
+
+Spacing:
+- Mobile Padding: 16px (px-4)
+- Desktop Padding: 24px (px-6 lg:px-8)
+- Card Padding: 16-24px (p-4 to p-6)
+- Gap Spacing: 12-16px (gap-3 to gap-4)
+
+Layout:
+- Mobile-First: 375px minimum width
+- Desktop Breakpoint: 1024px (lg:)
+- Max Content Width: 1280px (max-w-7xl)
+- Grid System: CSS Grid and Flexbox
+
+Visual Effects:
+- Border Radius: 12px (rounded-xl) for cards
+- Shadows: Layered shadows for depth
+  - Small: shadow-sm
+  - Medium: shadow-md
+  - Large: shadow-lg
+  - 3D Effect: shadow-[0_4px_6px_-1px_rgba(...)]
+- Gradients: Subtle gradients on cards
+  - bg-gradient-to-br from-white to-[color]-50
+- Backdrop Blur: backdrop-blur-sm for header
+
+Animations (index.css):
+- fade-in: Modal backdrop fade in
+- modal-enter: Modal scale and fade in
+- slide-out-left: Horse selector slide out left
+- slide-out-right: Horse selector slide out right
+- slide-in: Horse selector slide in
+
+Hover Effects:
+- Scale: hover:scale-105
+- Opacity: hover:opacity-90
+- Shadow: hover:shadow-lg
+- Transform: hover:-translate-y-0.5
+
+Responsive Breakpoints:
+- sm: 640px
+- md: 768px
+- lg: 1024px
+- xl: 1280px
+
+================================================================================
+8. KEY FEATURES & FUNCTIONALITY
+================================================================================
+
+Feature 1: Horse Management
+- Multi-horse support (3 horses configured)
+- Carousel-style selector with animations
+- Color-coded horse cards
+- Smooth transitions between horses
+- Preview navigation (previous/next horses)
+- Arrow controls for navigation
+
+Feature 2: Date Range Filtering
+- Three options: Today, 7 Days, 30 Days
+- Real-time filtering of all metrics
+- Visual toggle control
+- Affects all charts and metric displays
+
+Feature 3: Summary Metrics (4 Cards)
+- Overall Readiness: Composite score (0-100%)
+  - Calculated from recovery, injury risk, stress
+  - Weighted: Recovery 50%, Injury Risk 30%, Stress 20%
+- Injury Risk: Percentage with status indicator
+- Recovery Score: Percentage with trend
+- Next Key Event: Upcoming event information
+- All cards clickable → Opens MetricDetailModal
+
+Feature 4: Training Load Visualization
+- Bar chart showing training intensity over time
+- 7-color gradient palette for bars
+- Baseline comparison line
+- Delta percentage calculation
+- Interactive hover: Dims non-hovered bars to 0.4 opacity
+- Responsive container
+
+Feature 5: Alert System
+- Severity-based alerts (Low, Medium, High)
+- Color-coded severity indicators
+- Clickable alerts → Opens AlertDetailDrawer
+- Add new alerts via plus button
+- Custom alerts persist per horse
+- Historical charts for each alert
+
+Feature 6: Five Pillars Overview
+- Health, Training, Nutrition, Biomechanics, Environment
+- Status indicators per pillar
+- Clickable cards → Filters Updates feed
+- Visual status representation
+
+Feature 7: Biomechanics Chart
+- Line chart for symmetry percentage
+- Trend indicators (improving/stable/declining)
+- Smooth line animations
+- Responsive design
+
+Feature 8: Behaviour Panel
+- Three metrics: Focus, Stress, Willingness
+- Progress bars with percentages
+- Mini sparklines on hover
+- Color-coded cards
+
+Feature 9: Updates Feed
+- Chronological timeline of updates
+- Role badges (Trainer, Vet, Nutritionist)
+- Category tags (5 categories)
+- Search functionality (real-time)
+- Category filtering (via pillar cards)
+- Relative time display (e.g., "2h ago")
+
+Feature 10: Modal System
+- AlertDetailDrawer: Centered modal for alert details
+- AddAlertModal: Form for creating alerts
+- MetricDetailModal: Detailed metric view
+- All modals have:
+  - Semi-transparent backdrop
+  - Smooth animations (fade-in, scale)
+  - Close button (X)
+  - Click outside to close
+
+Feature 11: Circular Progress Charts
+- Custom CircularProgress component
+- Rounded edges (cornerRadius: 8)
+- Empty center for number display
+- Used in SummaryCards
+- Color-coded by status
+
+Feature 12: Responsive Design
+- Mobile-first approach
+- Scales from 375px to desktop
+- Adaptive layouts (grid to single column)
+- Touch-friendly interactions
+- Optimized for mobile devices
+
+================================================================================
+9. FILE STRUCTURE
+================================================================================
+
+Root Directory:
+/
+├── index.html                    # HTML entry point
+├── package.json                  # Dependencies and scripts
+├── package-lock.json            # Locked dependency versions
+├── vite.config.ts               # Vite configuration
+├── tsconfig.json                # TypeScript configuration
+├── tsconfig.node.json           # TypeScript config for Node
+├── tailwind.config.js           # TailwindCSS configuration
+├── postcss.config.js            # PostCSS configuration
+├── README.md                    # Project documentation
+├── SYSTEM_DOCUMENTATION.txt     # This file
+│
+├── public/                      # Static assets
+│   ├── assets/
+│   │   └── horse.png           # Horse icon/logo
+│   └── favicon.png             # Browser favicon
+│
+└── src/                        # Source code
+    ├── main.tsx                # React entry point
+    ├── App.tsx                 # Root component
+    ├── index.css               # Global styles and animations
+    │
+    ├── components/             # React components
+    │   ├── TrainerDashboard.tsx      # Main container
+    │   ├── HeaderControls.tsx       # Header section
+    │   ├── HorseSelector.tsx         # Horse carousel selector
+    │   ├── SummaryCards.tsx          # 4 metric cards
+    │   ├── CircularProgress.tsx      # Circular chart component
+    │   ├── TrainingLoadChart.tsx     # Bar chart component
+    │   ├── AlertsList.tsx            # Alerts list
+    │   ├── AlertDetailDrawer.tsx     # Alert detail modal
+    │   ├── AddAlertModal.tsx         # Add alert form modal
+    │   ├── MetricDetailModal.tsx     # Metric detail modal
+    │   ├── PillarStatusGrid.tsx      # 5 pillars grid
+    │   ├── BiomechanicsChart.tsx     # Line chart component
+    │   ├── BehaviourPanel.tsx        # Behaviour metrics
+    │   └── UpdatesFeed.tsx           # Updates timeline
+    │
+    ├── data/                   # Data layer
+    │   └── trainerData.ts     # Dummy data generators
+    │
+    └── utils/                  # Utility functions
+        └── helpers.ts         # Helper functions
+
+================================================================================
+10. CONFIGURATION FILES
+================================================================================
+
+vite.config.ts:
+- React plugin enabled
+- Server configuration:
+  - Port: 5173 (dev), 4173 (preview)
+  - Host: true (listen on all interfaces)
+  - Auto-open browser: true
+  - Strict port: false (try next if taken)
+
+tailwind.config.js:
+- Content paths: index.html, src/**/*
+- Custom colors: brand-bg, brand-secondary, brand-accent
+- No plugins
+
+tsconfig.json:
+- React JSX mode
+- ES2020 target
+- Module: ES2020
+- Strict mode enabled
+- Path aliases: None
+
+package.json Scripts:
+- dev: Start development server
+- build: Build for production (tsc && vite build)
+- preview: Preview production build
+- serve: Alias for preview
+- start: Alias for dev
+
+================================================================================
+11. USER INTERACTIONS & EVENTS
+================================================================================
+
+Interaction Flow:
+
+1. Initial Load:
+   - App loads → TrainerDashboard renders
+   - Default horse selected (horses[0])
+   - Default range: '7d'
+   - All metrics filtered and displayed
+
+2. Horse Selection:
+   - User clicks arrow or preview in HorseSelector
+   - Animation plays (slide out/in, rotation)
+   - selectedHorseId updates
+   - All metrics, alerts, charts update
+
+3. Date Range Change:
+   - User clicks Today/7D/30D toggle
+   - Range updates
+   - filterByRange() recalculates
+   - All charts and metrics update
+
+4. Metric Card Click:
+   - User clicks SummaryCard
+   - MetricDetailModal opens
+   - Shows detailed information
+   - Historical chart displayed
+   - Related metrics shown
+
+5. Alert Interaction:
+   - User clicks alert → AlertDetailDrawer opens
+   - User clicks plus → AddAlertModal opens
+   - User fills form → Alert saved
+   - Alert appears in list
+
+6. Pillar Filter:
+   - User clicks pillar card
+   - Updates feed filters by category
+   - Active filter highlighted
+   - Click again to clear filter
+
+7. Updates Search:
+   - User types in search box
+   - Updates filter in real-time
+   - Case-insensitive search
+
+8. Chart Interactions:
+   - Hover over TrainingLoadChart bars
+   - Non-hovered bars dim to 0.4 opacity
+   - Tooltip shows values
+   - Baseline comparison visible
+
+9. Modal Interactions:
+   - Click outside → Closes modal
+   - Click X button → Closes modal
+   - ESC key → Closes modal (browser default)
+   - Click inside → Prevents close
+
+================================================================================
+12. DATA PROCESSING & COMPUTATIONS
+================================================================================
+
+Readiness Calculation (computeReadiness):
+- Input: Array of DailyMetrics
+- Formula: (recovery * 0.5) + ((100 - injuryRisk) * 0.3) + ((100 - stress) * 0.2)
+- Output: { score: number, reason: string }
+- Reason logic:
+  - If recovery < 60: "Low recovery score"
+  - Else if injuryRisk > 40: "Elevated injury risk"
+  - Else if stress > 40: "High stress levels"
+  - Else: "All systems optimal"
+
+Status Calculation (getStatus):
+- Input: score (number), lowerIsBetter (boolean)
+- For lowerIsBetter = false (default):
+  - score >= 70: 'good'
+  - score >= 40: 'warning'
+  - else: 'critical'
+- For lowerIsBetter = true:
+  - score <= 30: 'good'
+  - score <= 60: 'warning'
+  - else: 'critical'
+
+Trend Calculation (computeTrend):
+- Input: Array of { value: number }
+- Method: Compare first half average vs second half average
+- Threshold: 5% of first half average
+- Output: 'improving' | 'stable' | 'declining'
+
+Date Range Filtering (filterByRange):
+- Input: data array, range ('today' | '7d' | '30d')
+- Logic:
+  - today: Only today's data
+  - 7d: Last 7 days (including today)
+  - 30d: Last 30 days (including today)
+- Output: Filtered array
+
+Alert Filtering:
+- Combines default alerts + custom alerts
+- Filters by date range relevance
+- Checks if alert history dates overlap with metric dates
+
+Updates Filtering:
+- Filters by category (if activePillarFilter set)
+- Filters by search text (case-insensitive)
+- Maintains chronological order
+
+================================================================================
+13. ANIMATIONS & TRANSITIONS
+================================================================================
+
+Horse Selector Animations:
+- Slide Out Left: When navigating to previous horse
+- Slide Out Right: When navigating to next horse
+- Slide In: New horse appears
+- Rotation: Horse icon rotates during transition
+- Scale: Preview cards scale on hover
+- Duration: 200ms slide-out, 400ms slide-in
+
+Modal Animations:
+- Fade In: Backdrop fades in (200ms)
+- Modal Enter: Modal scales and fades in (300ms)
+- Smooth transitions on all state changes
+
+Chart Animations:
+- Recharts default animations
+- Smooth line transitions
+- Bar chart hover effects
+- Tooltip fade in/out
+
+Hover Effects:
+- Card lift: transform -translate-y-0.5
+- Scale: scale-105
+- Shadow increase: shadow-md → shadow-lg
+- Opacity: opacity-90
+
+Transition Classes:
+- transition-all: General transitions
+- transition-colors: Color changes
+- transition-transform: Transform changes
+- duration-300: 300ms duration
+- ease-in-out: Easing function
+
+================================================================================
+14. CURRENT IMPLEMENTATION STATUS
+================================================================================
+
+Completed Features:
+✅ Full component structure
+✅ All data models and interfaces
+✅ State management
+✅ Horse selector with animations
+✅ Date range filtering
+✅ Summary cards with circular progress
+✅ Training load chart with hover effects
+✅ Alert system (list, detail, add)
+✅ Five pillars grid
+✅ Biomechanics chart
+✅ Behaviour panel
+✅ Updates feed with search/filter
+✅ Metric detail modal
+✅ Responsive design
+✅ Styling system
+✅ Animations and transitions
+✅ Local data generation
+
+Production Ready:
+✅ TypeScript type safety
+✅ Build process configured
+✅ Development server configured
+✅ Error handling (image loading fallbacks)
+✅ Accessibility considerations (aria-labels)
+
+Not Implemented (POC Scope):
+❌ Backend API integration
+❌ Authentication
+❌ Data persistence (localStorage/backend)
+❌ Real-time updates
+❌ User preferences
+❌ Export functionality
+❌ Print styles
+❌ Offline support (PWA)
+
+================================================================================
+15. DEPENDENCIES & VERSIONS
+================================================================================
+
+Production Dependencies:
+- react: ^18.2.0
+- react-dom: ^18.2.0
+- recharts: ^2.10.3
+- lucide-react: ^0.294.0
+
+Development Dependencies:
+- @types/react: ^18.2.43
+- @types/react-dom: ^18.2.17
+- @vitejs/plugin-react: ^4.2.1
+- autoprefixer: ^10.4.16
+- postcss: ^8.4.32
+- tailwindcss: ^3.3.6
+- typescript: ^5.3.3
+- vite: ^5.0.8
+
+================================================================================
+16. BUILD & DEPLOYMENT
+================================================================================
+
+Development:
+- Command: npm run dev
+- Server: http://localhost:5173
+- Features: HMR, source maps, dev tools
+
+Production Build:
+- Command: npm run build
+- Output: dist/ directory
+- Optimizations: Minification, tree-shaking, code splitting
+- Type checking: TypeScript compilation
+
+Preview:
+- Command: npm run preview
+- Server: http://localhost:4173
+- Serves production build locally
+
+Deployment Options:
+- Static hosting (Vercel, Netlify, GitHub Pages)
+- No server required
+- All assets in dist/ directory
+
+================================================================================
+17. KEY TECHNICAL DECISIONS
+================================================================================
+
+1. No External State Management:
+   - Decision: Use React useState only
+   - Reason: Simple state needs, no complex state management required
+   - Benefit: Reduced dependencies, simpler codebase
+
+2. Local Dummy Data:
+   - Decision: Generate data in trainerData.ts
+   - Reason: POC doesn't require backend
+   - Benefit: Fully self-contained, easy to demo
+
+3. Mobile-First Design:
+   - Decision: Design for mobile, scale to desktop
+   - Reason: Field use case, mobile accessibility
+   - Benefit: Better mobile experience
+
+4. Component-Based Architecture:
+   - Decision: Break into small, focused components
+   - Reason: Maintainability, reusability
+   - Benefit: Easy to understand and modify
+
+5. TailwindCSS Utility Classes:
+   - Decision: Use utility classes over CSS modules
+   - Reason: Rapid development, consistency
+   - Benefit: Faster styling, consistent design
+
+6. Recharts for Visualization:
+   - Decision: Use Recharts over D3 directly
+   - Reason: React-friendly, easier to use
+   - Benefit: Faster development, responsive charts
+
+7. TypeScript Strict Mode:
+   - Decision: Full type coverage
+   - Reason: Type safety, better DX
+   - Benefit: Catch errors early, better IDE support
+
+================================================================================
+18. KNOWN LIMITATIONS & FUTURE ENHANCEMENTS
+================================================================================
+
+Current Limitations:
+- No data persistence (custom alerts lost on refresh)
+- No backend integration
+- No real-time updates
+- Limited to 3 horses (hardcoded)
+- 30 days of data (hardcoded)
+- No export functionality
+- No print styles
+
+Potential Enhancements:
+- Backend API integration
+- Authentication system
+- Data persistence (localStorage or backend)
+- Real-time WebSocket updates
+- More horses (dynamic)
+- Unlimited date range
+- Export to PDF/CSV
+- Print-friendly styles
+- PWA support (offline)
+- Dark mode
+- User preferences
+- Advanced filtering
+- Data comparison (horse vs horse)
+- Historical data analysis
+
+================================================================================
+END OF DOCUMENTATION
+================================================================================
+
+This document contains all essential information about the current state of the
+Equine Integration Trainer Overview Dashboard web application. Use this as input
+for ChatGPT or other AI tools to generate additional documentation, diagrams,
+or implementation guides.
+
+For questions or updates, refer to the source code or contact the development team.
