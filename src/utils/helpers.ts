@@ -133,3 +133,69 @@ export function formatDateTime(dateTimeString: string): string {
   }
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
+
+/**
+ * Detect anomalies in time series data
+ * Returns array of indices where anomalies occur
+ */
+export function detectAnomalies(values: number[]): number[] {
+  if (values.length < 2) return [];
+  
+  // Calculate day-to-day changes (deltas)
+  const deltas: number[] = [];
+  for (let i = 1; i < values.length; i++) {
+    deltas.push(Math.abs(values[i] - values[i - 1]));
+  }
+  
+  if (deltas.length === 0) return [];
+  
+  // Calculate mean and standard deviation of deltas
+  const mean = deltas.reduce((sum, d) => sum + d, 0) / deltas.length;
+  const variance = deltas.reduce((sum, d) => sum + Math.pow(d - mean, 2), 0) / deltas.length;
+  const stdDev = Math.sqrt(variance);
+  
+  // Threshold: 2×std or fixed threshold (whichever is larger)
+  const threshold = Math.max(2 * stdDev, mean * 0.3); // At least 30% of mean
+  
+  // Find anomalies (indices where delta exceeds threshold)
+  const anomalies: number[] = [];
+  for (let i = 0; i < deltas.length; i++) {
+    if (deltas[i] > threshold) {
+      anomalies.push(i + 1); // +1 because delta[i] corresponds to value[i+1]
+    }
+  }
+  
+  return anomalies;
+}
+
+/**
+ * Get context hint based on latest value vs rolling 7-day average
+ */
+export function getContextHint(
+  values: number[],
+  label: string
+): { text: string; isAbove: boolean | null } {
+  if (values.length === 0) {
+    return { text: 'No data', isAbove: null };
+  }
+  
+  const latest = values[values.length - 1];
+  const daysToAverage = Math.min(7, values.length - 1);
+  
+  if (daysToAverage === 0) {
+    return { text: 'Insufficient data', isAbove: null };
+  }
+  
+  const recentValues = values.slice(-daysToAverage - 1, -1); // Exclude latest
+  const average = recentValues.reduce((sum, v) => sum + v, 0) / recentValues.length;
+  
+  const threshold = average * 0.05; // 5% threshold
+  
+  if (latest > average + threshold) {
+    return { text: `Above normal ${label}`, isAbove: true };
+  } else if (latest < average - threshold) {
+    return { text: `Below normal ${label}`, isAbove: false };
+  } else {
+    return { text: `Within normal ${label}`, isAbove: null };
+  }
+}

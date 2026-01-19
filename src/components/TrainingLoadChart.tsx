@@ -1,22 +1,21 @@
 import { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell } from 'recharts';
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Cell, ReferenceLine, CellProps } from 'recharts';
 import { DailyMetrics } from '../data/trainerData';
-import { formatDate } from '../utils/helpers';
+import { formatDate, detectAnomalies, getContextHint } from '../utils/helpers';
 
 interface TrainingLoadChartProps {
   metrics: DailyMetrics[];
 }
 
-// Color palette for diversified bars
+// Neutral gray palette for bars
 const barColors = [
-  { start: '#F97316', end: '#EA580C' }, // Orange
-  { start: '#EF4444', end: '#DC2626' }, // Red
-  { start: '#F59E0B', end: '#D97706' }, // Amber
-  { start: '#10B981', end: '#059669' }, // Green
-  { start: '#3B82F6', end: '#2563EB' }, // Blue
-  { start: '#8B5CF6', end: '#7C3AED' }, // Purple
-  { start: '#EC4899', end: '#DB2777' }, // Pink
+  { start: '#6B7280', end: '#4B5563' }, // Gray
+  { start: '#71717A', end: '#52525B' }, // Slate gray
+  { start: '#78716C', end: '#57534E' }, // Stone gray
+  { start: '#6B7280', end: '#4B5563' }, // Gray
+  { start: '#71717A', end: '#52525B' }, // Slate gray
+  { start: '#78716C', end: '#57534E' }, // Stone gray
+  { start: '#6B7280', end: '#4B5563' }, // Gray
 ];
 
 export default function TrainingLoadChart({ metrics }: TrainingLoadChartProps) {
@@ -30,10 +29,16 @@ export default function TrainingLoadChart({ metrics }: TrainingLoadChartProps) {
     );
   }
 
+  const intensities = metrics.map(m => m.trainingIntensity);
+  const anomalyIndices = detectAnomalies(intensities);
+  const contextHint = getContextHint(intensities, 'workload');
+
   const chartData = metrics.map((m, index) => ({
     date: formatDate(m.date),
     intensity: Math.round(m.trainingIntensity * 10) / 10,
     index,
+    isAnomaly: anomalyIndices.includes(index),
+    originalDate: m.date,
   }));
 
   // Calculate baseline (average of first 7 days or all if less)
@@ -43,21 +48,33 @@ export default function TrainingLoadChart({ metrics }: TrainingLoadChartProps) {
   const delta = ((current - baseline) / baseline) * 100;
   const isIncreasing = delta > 0;
 
+  // Custom tooltip to show anomaly info
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      const isAnomaly = data.isAnomaly;
+      const prevValue = data.index > 0 ? chartData[data.index - 1].intensity : null;
+      const change = prevValue !== null ? data.intensity - prevValue : null;
+      
+      return (
+        <div className="bg-white border-2 border-gray-300 rounded-lg p-3 shadow-lg">
+          <p className="text-sm font-semibold text-gray-900">{data.date}</p>
+          <p className="text-sm text-gray-700">Intensity: {data.intensity}</p>
+          {isAnomaly && change !== null && (
+            <p className="text-xs font-semibold text-brand-accent mt-1">
+              Unusual change: {change > 0 ? '↑' : '↓'} {Math.abs(change).toFixed(1)}
+            </p>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="bg-gradient-to-br from-white to-orange-50 rounded-xl p-6 border border-orange-100 shadow-[0_4px_6px_-1px_rgba(249,115,22,0.1),0_2px_4px_-1px_rgba(249,115,22,0.06)] hover:shadow-[0_10px_15px_-3px_rgba(249,115,22,0.2),0_4px_6px_-2px_rgba(249,115,22,0.1)] transition-all">
+    <div id="training-load-chart" className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm transition-all">
       <div className="mb-4">
         <h2 className="text-xl font-bold text-brand-secondary mb-2">Training Load</h2>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-gray-600">Load vs baseline:</span>
-          <div className={`flex items-center gap-1 px-3 py-1 rounded-lg ${isIncreasing ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-            {isIncreasing ? (
-              <TrendingUp className="w-4 h-4" />
-            ) : (
-              <TrendingDown className="w-4 h-4" />
-            )}
-            <span className="text-sm font-bold">{Math.abs(delta).toFixed(1)}%</span>
-          </div>
-        </div>
       </div>
       
       <ResponsiveContainer width="100%" height={220}>
@@ -87,15 +104,7 @@ export default function TrainingLoadChart({ metrics }: TrainingLoadChartProps) {
             domain={[0, 10]}
             tick={{ fontSize: 12, fill: '#6B7280', fontWeight: 500 }}
           />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: 'white',
-              border: '2px solid #F97316',
-              borderRadius: '8px',
-              fontSize: '12px',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-            }}
-          />
+          <Tooltip content={<CustomTooltip />} />
           <Bar 
             dataKey="intensity" 
             radius={[8, 8, 0, 0]}
@@ -115,8 +124,36 @@ export default function TrainingLoadChart({ metrics }: TrainingLoadChartProps) {
               );
             })}
           </Bar>
+          {/* Anomaly markers - vertical lines */}
+          {anomalyIndices.map((idx) => {
+            const data = chartData[idx];
+            if (!data) return null;
+            const prevValue = idx > 0 ? chartData[idx - 1].intensity : null;
+            const change = prevValue !== null ? data.intensity - prevValue : null;
+            
+            return (
+              <ReferenceLine
+                key={`anomaly-${idx}`}
+                x={data.date}
+                stroke={change && change > 0 ? '#EF4444' : '#3B82F6'}
+                strokeWidth={2}
+                strokeDasharray="2 2"
+              />
+            );
+          })}
         </BarChart>
       </ResponsiveContainer>
+      
+      {/* Context hint */}
+      <div className="mt-3 text-sm">
+        <span className={`font-medium ${
+          contextHint.isAbove === true ? 'text-brand-accent' : 
+          contextHint.isAbove === false ? 'text-gray-500' : 
+          'text-gray-600'
+        }`}>
+          {contextHint.text}
+        </span>
+      </div>
     </div>
   );
 }

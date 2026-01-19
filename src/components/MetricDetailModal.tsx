@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, ReferenceLine } from 'recharts';
 import { DailyMetrics } from '../data/trainerData';
-import { formatDate, computeReadiness, getStatus } from '../utils/helpers';
+import { formatDate, computeReadiness, getStatus, detectAnomalies } from '../utils/helpers';
 
 export type MetricType = 'readiness' | 'injuryRisk' | 'recovery' | 'nextEvent';
 
@@ -23,8 +23,14 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
         const status = getStatus(readiness.score);
         const statusColor = status === 'good' ? '#10B981' : status === 'warning' ? '#F59E0B' : '#EF4444';
         // Calculate readiness for each day (computeReadiness uses latest metric, so we calculate per day)
-        const chartData = metrics.map(m => {
-          // For historical trend, calculate readiness based on that day's metrics
+        const readinessValues = metrics.map(m => {
+          const recovery = m.recoveryScore;
+          const injuryRisk = m.injuryRisk;
+          const stress = m.behaviour.stress;
+          return (recovery * 0.5) + ((100 - injuryRisk) * 0.3) + ((100 - stress) * 0.2);
+        });
+        const anomalyIndices = detectAnomalies(readinessValues);
+        const chartData = metrics.map((m, index) => {
           const recovery = m.recoveryScore;
           const injuryRisk = m.injuryRisk;
           const stress = m.behaviour.stress;
@@ -32,6 +38,8 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
           return {
             date: formatDate(m.date),
             value: Math.round(score),
+            index,
+            isAnomaly: anomalyIndices.includes(index),
           };
         });
         return {
@@ -42,7 +50,8 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
           statusColor,
           description: `Overall readiness is calculated from recovery score (50%), injury risk (30%), and stress levels (20%). Current status: ${readiness.reason}`,
           chartData,
-          chartColor: statusColor,
+          chartColor: '#6B7280', // Neutral gray
+          anomalyIndices,
           details: [
             { label: 'Recovery Score', value: `${Math.round(latest.recoveryScore)}%`, status: getStatus(latest.recoveryScore) },
             { label: 'Injury Risk', value: `${Math.round(latest.injuryRisk)}%`, status: getStatus(latest.injuryRisk, true) },
@@ -53,9 +62,13 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
       case 'injuryRisk': {
         const status = getStatus(latest.injuryRisk, true);
         const statusColor = status === 'good' ? '#10B981' : status === 'warning' ? '#F59E0B' : '#EF4444';
-        const chartData = metrics.map(m => ({
+        const injuryRiskValues = metrics.map(m => m.injuryRisk);
+        const anomalyIndices = detectAnomalies(injuryRiskValues);
+        const chartData = metrics.map((m, index) => ({
           date: formatDate(m.date),
           value: Math.round(m.injuryRisk),
+          index,
+          isAnomaly: anomalyIndices.includes(index),
         }));
         return {
           title: 'Injury Risk',
@@ -65,7 +78,8 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
           statusColor,
           description: `Injury risk assessment based on training load, recovery patterns, and biomechanical data. Lower values indicate lower risk.`,
           chartData,
-          chartColor: statusColor,
+          chartColor: '#6B7280', // Neutral gray
+          anomalyIndices,
           details: [
             { label: 'Training Intensity', value: `${(latest.trainingIntensity * 10).toFixed(0)}%`, status: latest.trainingIntensity > 7 ? 'warning' : 'good' },
             { label: 'Recovery Score', value: `${Math.round(latest.recoveryScore)}%`, status: getStatus(latest.recoveryScore) },
@@ -76,9 +90,13 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
       case 'recovery': {
         const status = getStatus(latest.recoveryScore);
         const statusColor = status === 'good' ? '#10B981' : status === 'warning' ? '#F59E0B' : '#EF4444';
-        const chartData = metrics.map(m => ({
+        const recoveryValues = metrics.map(m => m.recoveryScore);
+        const anomalyIndices = detectAnomalies(recoveryValues);
+        const chartData = metrics.map((m, index) => ({
           date: formatDate(m.date),
           value: Math.round(m.recoveryScore),
+          index,
+          isAnomaly: anomalyIndices.includes(index),
         }));
         return {
           title: 'Recovery Score',
@@ -88,7 +106,8 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
           statusColor,
           description: `Recovery score indicates how well the horse has recovered from previous training sessions. Higher values indicate better recovery.`,
           chartData,
-          chartColor: statusColor,
+          chartColor: '#6B7280', // Neutral gray
+          anomalyIndices,
           details: [
             { label: 'Resting Heart Rate', value: `${Math.round(latest.restingHR)} bpm`, status: latest.restingHR < 40 ? 'good' : 'warning' },
             { label: 'Training Intensity', value: `${(latest.trainingIntensity * 10).toFixed(0)}%`, status: latest.trainingIntensity < 6 ? 'good' : 'warning' },
@@ -198,12 +217,26 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
                           tick={{ fontSize: 11, fill: '#6B7280', fontWeight: 500 }}
                         />
                         <Tooltip
-                          contentStyle={{
-                            backgroundColor: 'white',
-                            border: `2px solid ${config.chartColor}`,
-                            borderRadius: '8px',
-                            fontSize: '11px',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0].payload;
+                              const isAnomaly = data.isAnomaly;
+                              const prevValue = data.index > 0 ? config.chartData[data.index - 1].value : null;
+                              const change = prevValue !== null ? data.value - prevValue : null;
+                              
+                              return (
+                                <div className="bg-white border-2 border-gray-300 rounded-lg p-3 shadow-lg">
+                                  <p className="text-sm font-semibold text-gray-900">{data.date}</p>
+                                  <p className="text-sm text-gray-700">Value: {data.value}{config.unit}</p>
+                                  {isAnomaly && change !== null && (
+                                    <p className="text-xs font-semibold text-brand-accent mt-1">
+                                      Unusual change: {change > 0 ? '↑' : '↓'} {Math.abs(change)}{config.unit}
+                                    </p>
+                                  )}
+                                </div>
+                              );
+                            }
+                            return null;
                           }}
                         />
                         <Line
@@ -212,8 +245,25 @@ export default function MetricDetailModal({ metricType, metrics, onClose }: Metr
                           stroke={config.chartColor}
                           strokeWidth={3}
                           dot={{ r: 4, fill: config.chartColor }}
-                          activeDot={{ r: 6 }}
+                          activeDot={{ r: 6, fill: config.chartColor }}
                         />
+                        {/* Anomaly markers */}
+                        {config.anomalyIndices && config.anomalyIndices.map((idx: number) => {
+                          const data = config.chartData[idx];
+                          if (!data) return null;
+                          const prevValue = idx > 0 ? config.chartData[idx - 1].value : null;
+                          const change = prevValue !== null ? data.value - prevValue : null;
+                          
+                          return (
+                            <ReferenceLine
+                              key={`anomaly-${idx}`}
+                              x={data.date}
+                              stroke={change && change > 0 ? '#EF4444' : '#3B82F6'}
+                              strokeWidth={2}
+                              strokeDasharray="3 3"
+                            />
+                          );
+                        })}
                       </LineChart>
                     </ResponsiveContainer>
                   </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { horses, dailyMetricsByHorseId, alertsByHorseId, updatesFeed } from '../data/trainerData';
 import { filterByRange } from '../utils/helpers';
 import HeaderControls from './HeaderControls';
+import AnomalyAlertsSummary from './AnomalyAlertsSummary';
 import SummaryCards from './SummaryCards';
 import TrainingLoadChart from './TrainingLoadChart';
 import AlertsList from './AlertsList';
@@ -78,6 +79,22 @@ export default function TrainerDashboard() {
       {/* Main Content */}
       <main className="px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+          {/* Anomaly Alerts Summary */}
+          <AnomalyAlertsSummary 
+            metrics={filteredMetrics}
+            onScrollToChart={(chartId) => {
+              const element = document.getElementById(chartId);
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Highlight briefly
+                element.classList.add('ring-2', 'ring-brand-accent', 'ring-offset-2');
+                setTimeout(() => {
+                  element.classList.remove('ring-2', 'ring-brand-accent', 'ring-offset-2');
+                }, 2000);
+              }
+            }}
+          />
+          
           {/* Summary Cards */}
           <SummaryCards metrics={filteredMetrics} onMetricClick={setActiveMetric} />
 
